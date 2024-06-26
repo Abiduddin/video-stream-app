@@ -13,6 +13,7 @@ app.get('/name/:name', (req, res) => {
 })
 
 app.get('/video', (req, res) => {
+    // add the video file here
     const videoFilePath = path.join(__dirname, 'myvideo.mp4')
     const stat = fs.statSync(videoFilePath)
     const fileSize = stat.size
