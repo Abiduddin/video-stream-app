@@ -4,6 +4,39 @@ const fs = require('fs')
 const app = express()
 const port = 3000
 
+let totalBytesSent = 0
+
+app.use((req, res, next) => {
+
+    let bytesSent = 0
+
+    const originalWrite = res.write
+    const originalEnd = res.end
+
+    res.write = function(chunk, encoding, callback) {
+        if(chunk){
+            bytesSent += Buffer.byteLength(chunk, encoding)
+        }
+        return originalWrite.call(res, chunk, encoding, callback)
+    }
+
+    res.end = function (chunk, encoding, callback) {
+        if(chunk){
+            bytesSent += Buffer.byteLength(chunk, encoding)
+        }
+        totalBytesSent += bytesSent
+        console.log(`##### Bytes sent for this request : ${bytesSent}`)
+        console.log(`##### Total Bytes sent for this request : ${totalBytesSent}`)
+        return originalEnd.call(res, chunk, encoding, callback)
+    }
+
+    console.log("### pass the request to next ###")
+
+    next();
+
+})
+
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '/index.html'))
 })
